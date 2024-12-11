@@ -2,7 +2,9 @@
 title: "Predicting Water Quality using Machine Learning"
 author: "Vincent Katunga-Phiri"
 date: "2024-12-11"
-output: html_document
+output:
+  pdf_document: 
+    latex_engine: lualatex
 ---
 
 ```{r setup, include=FALSE}
@@ -56,7 +58,7 @@ Water is an essential component of life and the earth's ecosystems. Increased ur
 The project will include several essential steps, including the methods section describing the machine learning methodologies utilised, the data cleaning processes, and the data exploration processes, along with an interpretation of the insights derived from each exploration. The model development methodology will also be addressed. The results section will summarise the model’s outcomes and performance metrics using the accuracy, precision, recall and f1 score. The conclusion section will summarise the project, emphasising its limitations and prospective avenues for future research and lastly a reference section.
 
 ## Methods
-**Dataset Description** <br>
+### **Dataset Description** 
 The dataset has 3276 observations and 10 variables. the variables include;<br>
 `ph`: An indicator of acidic or alkaline condition of water status.<br>
 `Hardness`: The concentration of calcium and magnesium ions in water, which affects its ability to lather with soap.<br>
@@ -82,7 +84,7 @@ head(water_quality)
 ```
 The output above is just a glimpse of the 6 first observations in the dataset. NA values can be seen.
 
-**Missing Data** <br>
+### **Missing Data** 
 Since we have seen that our dataset comprises of missing values, the figure below is a visual representation of the extent of missingness in the dataset. There are 1434 observations with missing values in either of the variables in the dataset.
 
 ```{r missingness, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
@@ -109,7 +111,7 @@ From the chart above, the variables `Sulfate` and `ph` have the highest number o
 water_quality <- water_quality %>% 
   mutate(Potability = factor(Potability, levels = c(1, 0), labels = c("Yes", "No")))
 ```
-<br>
+
 ```{r potability, echo=FALSE, message=FALSE, warning=FALSE}
 #Plot water potability distribution
 ggplot(water_quality) +
@@ -121,9 +123,9 @@ ggplot(water_quality) +
   theme(plot.title = element_text(size = 15L, face = "bold"))
 
 ```
-<br>
+
 The plot above shows that the dataset contains a substantial number of observations with non-potable water, approximately 2000, representing approximately 59%, while observations of potable water make up approximately 40%.
-<br>
+
 ```{r exploratory1, echo=FALSE, message=FALSE, warning=FALSE}
 water_quality$Potability <- as.factor(water_quality$Potability)
 
@@ -200,7 +202,7 @@ Turbidityplot <- ggplot(water_quality) +
   theme(plot.title = element_text(face = "bold"))
 ```
 
-**Distribution of the water parameters against Potability** <br>
+### **Distribution of the water parameters against Potability**
 ```{r phpplot, echo=FALSE, message=FALSE, warning=FALSE}
 phpplot 
 ```
@@ -240,7 +242,7 @@ The output indicates that nearly all variables in the dataset show a normal dist
 In nearly all distributions, the spread is similar, indicating comparable variability of parameter values for potable and non-potable water. Furthermore, all distributions indicate that the dataset contains a greater quantity of non-potable water compared to potable water. The distributions for both potable and non-potable water appear to be centred at comparable levels across all distributions. 
 <br>
 
-**Variability of water parameters against potability** <br>
+### **Variability of water parameters against potability** 
 ```{r plot2, message=FALSE, warning=FALSE, include=FALSE}
 #Data variability and outliers for all variables
 box1 <- ggplot(water_quality) +
@@ -345,7 +347,7 @@ box8
 box9
 ```
 
-**Data Cleaning and Preprocessing** <br>
+### **Data Cleaning and Pre-processing** 
 Initially, as indicated in the dataset description, our dependent variable `potability` is an integer. To perform classification modelling, it is necessary to convert this variable into a factor. Secondly, the dataset's missing values must be addressed. Given the normal distribution of the dataset, the mean for each variable was employed to impute values for the missing data, with the exception of the `Solids` variable, which shows a significant deviation from the mean. The median was employed for the `solids` variable.
 
 ```{r imputation, echo=FALSE, message=FALSE, warning=FALSE}
@@ -389,10 +391,10 @@ corrplot(COR_water_quality, method = 'color', order = 'alphabet')
 <br>
 The correlation matrix above clearly indicates the absence of correlation among the variables.
 
-**Modelling Approaches** <br>
+### **Modelling Approaches** 
 For this project, Random Forest and K Nearest Neighbors were used to predict water potability. These models take into account that the dependent variable be a factor with more than one level (Han et al., 2022). According to (Breiman, 2001) is a classification and regression model that uses the decision tree model approach to create a forest consisting of multiple decision trees. K Nearest Neighbors is also a classification machine learning model that classifies a data point by determining the predominant class among its k nearest neighbours in the feature space (Cover & Hart, 1967).
 
-**Data Split** <br>
+### **Data Split** 
 The caret package was utilised to partition the data according to the 80/20 rule, allocating 80% for training and 20% for testing. Set.seed is used to ensure the reproducibility of the model.
 
 ```{r split, echo=TRUE, message=FALSE, warning=FALSE}
@@ -402,7 +404,8 @@ train_data <- water_quality[sample, ]
 test_data <- water_quality[-sample, ]
 ```
 
-*Random Forest Model*
+### *Random Forest Model*
+<br>
 ```{r}
 train_control <- trainControl(method = "cv", number = 8)
 rf_model <- train(Potability ~ ., data = train_data, method = "rf", trControl = train_control) #The model
@@ -410,30 +413,38 @@ rf_predict <- predict(rf_model, test_data) #Predicting the test data
 test_data$Potability_pred <- rf_predict
 ```
 
-*KNN Model*
+### *KNN Model*
+<br>
 ```{r knn_model, message=FALSE, warning=FALSE}
-train_control <- trainControl(method = "cv", number = 10)
-knn_model <- train(Potability ~ ., data = train_data, method = "knn", trControl = train_control) #The model
+train_control2 <- trainControl(method = "cv", number = 10)
+knn_model <- train(Potability ~ ., data = train_data, method = "knn", trControl = train_control2) #The model
 knn_predict <- predict(knn_model, test_data) #Predicting the test data
-test_data$Potability_pred <- knn_predict
+test_data$Potability_pred2 <- knn_predict
 ```
 
 ## Results
 According to Han et al. (2022), when dealing with nominal dependent variables, evaluation metrics such as accuracy, precision, recall, and F1-Score should be utilised instead of the Root Mean Squared Error (RMSE). Given that the dependent variable `potability` is nominal, the following evaluation metrics will be employed.
 
-*Random Forest Model Confusion matrix* <br>
-The rows in the confusion matrix below represent actual labels and the column represent predicted label. So confusion matrix output below indicates that; <br>
-**True Positives (TP):** Correctly predicted 93 observation as potable water.<br>
-**True Negatives (TN):** Correctly predicted 345 observation as non-potable water.<br>
-**False Positives (FP):** Incorrectly predicted 162 observations as potable water while they are non-potable.<br>
-**False Negatives (FN):** Incorrectly predicted 54 observations as non-potable water while they are potable.<br>
+*Random Forest Model Confusion matrix* 
+<br>
+The rows in the confusion matrix below represent actual labels and the column represent predicted label. So confusion matrix output below indicates that; 
+<br>
+**True Positives (TP):** Correctly predicted 92 observation as potable water.
+<br>
+**True Negatives (TN):** Correctly predicted 348 observation as non-potable water.
+<br>
+**False Positives (FP):** Incorrectly predicted 163 observations as potable water while they are non-potable.
+<br>
+**False Negatives (FN):** Incorrectly predicted 51 observations as non-potable water while they are potable.
+<br>
 
 ```{r rf_confusion, message=FALSE, warning=FALSE}
 rf_confusionMatrix <- table(test_data$Potability, test_data$Potability_pred)
 rf_confusionMatrix
 ```
 
-*Random Forest Model Accuracy*
+### *Random Forest Model Accuracy*
+<br>
 According to (Witten et al., 2016), accuracy is the proportion of correctly predicted instances to the total number of instances.For this random forest model, the model is correct by 67%.
 
 ```{r rf_accuracy, message=FALSE, warning=FALSE}
@@ -449,40 +460,50 @@ rf_FN <- rf_confusionMatrix [2,1]
 rf_TP <- rf_confusionMatrix [2,2]
 ```
 
-*Random Forest Model Precision Evaluation* <br>
-Precision denotes the proportion of accurately predicted positive cases (Witten et al., 2016). From the output of the precision calculation, it shows that 68% of the portable predicted observations are indeed potable water.
+### *Random Forest Model Precision Evaluation* 
+<br>
+Precision denotes the proportion of accurately predicted positive cases (Witten et al., 2016). From the output of the precision calculation, it shows that 68% of the potable predicted observations are indeed potable water.
 
 ```{r rf_precision, message=FALSE, warning=FALSE}
 rf_precision <- rf_TP/(rf_TP+rf_FP)
 rf_precision
 ```
-*Random Forest Model Recall Evaluation* <br>
-Recall, or sensitivity, measures the model's ability to accurately identify all positive instances present in the dataset (Witten et al., 2016). The model captures 84% of actual potable observations.
+### *Random Forest Model Recall Evaluation* 
+<br>
+Recall, or sensitivity, measures the model's ability to accurately identify all positive instances present in the dataset (Witten et al., 2016). The model captures 87% of actual potable observations.
 ```{r rf_potable, message=FALSE, warning=FALSE}
 rf_recall <- rf_TP/(rf_TP+rf_FN)
 rf_recall
 ```
-*Random Forest Model F1 Score Evaluation* <br>
-The F1 score combines metrics that incorporate precision and recall, providing a comprehensive evaluation of model performance (Witten et al., 2016). The balance between Precision and Recall for `potablity` is excellent at 68%.
+### *Random Forest Model F1 Score Evaluation* 
+<br>
+The F1 score combines metrics that incorporate precision and recall, providing a comprehensive evaluation of model performance (Witten et al., 2016). The balance between Precision and Recall for `potablity` is good at 76%.
 
 ```{r rf_f1, message=FALSE, warning=FALSE}
 rf_f1_score <- 2*(rf_precision * rf_recall)/(rf_precision + rf_recall)
 rf_f1_score
 ```
 
-*KNN Confusion Matrix Model Confusion matrix* <br>
-The rows in the confusion matrix below represent actual labels and the column represent predicted label. So confusion matrix output below indicates that; <br>
-**True Positives (TP):** Correctly predicted 92 observation as potable water.<br>
-**True Negatives (TN):** Correctly predicted 461 observation as non-potable water.<br>
-**False Positives (FP):** Incorrectly predicted 291 observations as potable water while they are non-potable.<br>
-**False Negatives (FN):** Incorrectly predicted 136 observations as non-potable water while they are potable.<br>
+### *KNN Confusion Matrix Model Confusion matrix* 
+<br>
+The rows in the confusion matrix below represent actual labels and the column represent predicted label. So confusion matrix output below indicates that; 
+<br>
+**True Positives (TP):** Correctly predicted 60 observation as potable water.
+<br>
+**True Negatives (TN):** Correctly predicted 323 observation as non-potable water.
+<br>
+**False Positives (FP):** Incorrectly predicted 195 observations as potable water while they are non-potable.
+<br>
+**False Negatives (FN):** Incorrectly predicted 76 observations as non-potable water while they are potable.
+<br>
 
 ```{r}
-knn_confusionMatrix <- table(test_data$Potability, test_data$Potability_pred)
+knn_confusionMatrix <- table(test_data$Potability, test_data$Potability_pred2)
 knn_confusionMatrix
 ```
-*KNN Model Accuracy*
-For this random forest model, the model is correct by 56%.
+### *KNN Model Accuracy*
+<br>
+For this random forest model, the model is correct by 58%.
 ```{r knn_accuracy, message=FALSE, warning=FALSE}
 knn_classification_accuracy <- sum(diag(knn_confusionMatrix)/sum(knn_confusionMatrix))
 knn_classification_accuracy
@@ -495,26 +516,38 @@ knn_FN <- knn_confusionMatrix [2,1]
 knn_TP <- knn_confusionMatrix [2,2]
 ```
 
-*Random Forest Model Precision Evaluation* <br>
-From the output of the precision calculation, it shows that 61% of the portable predicted observations are indeed potable water.
+### *Random Forest Model Precision Evaluation* 
+<br>
+From the output of the precision calculation, it shows that 62% of the potable predicted observations are indeed potable water.
 ```{r}
 knn_precision <- knn_TP/(knn_TP+knn_FP)
 knn_precision
 ```
-*KNN Model Recall Evaluation* <br>
-The model captures 77% of actual potable observations.
+### *KNN Model Recall Evaluation* 
+<br>
+The model captures 81% of actual potable observations.
 ```{r knn_recall, message=FALSE, warning=FALSE}
 knn_recall <- knn_TP/(knn_TP+knn_FN)
 knn_recall
 ```
-*KNN Model F1 Score Evaluation* <br>
-The balance between Precision and Recall for `potablity` is excellent at 68%.
+### *KNN Model F1 Score Evaluation* 
+<br>
+The balance between Precision and Recall for `potablity` is excellent at 70%.
 ```{r knn_f1_score, message=FALSE, warning=FALSE}
 knn_f1_score <- 2*(knn_precision * knn_recall)/(knn_precision + knn_recall)
 knn_f1_score
 ```
+### **Model Performance Summary**
+<br>
+The evaluation metrics indicate that the Random Forest model performed better than the K-Nearest Neighbours (KNN) model in several evaluation parameters. The accuracy of the random forest was 67%, while the KNN model was 58%, which signified a reduction in overall classification errors. Furthermore, the Random Forest model precision of 68% compared to 62% for KNN, resulting in a reduced incidence of false positives, which is vital in contexts where erroneous positive predictions incur significant costs like the water potability which is crucial in the health of human beings. Regarding recall, Random Forest outperforms KNN with a rate of 87% versus 81%, indicating its superior capacity to accurately identify positive instances. This renders Random Forest appropriate where the reduction of false negatives is essential, such as in water potability. Lastly, Random Forest shows a superior F1 Score of 76% compared to 70%, indicating its enhanced balance between precision and recall. 
+
 ## Conclusion
 
+The report outlines and discusses the process of predicting water quality using 9 water quality parameters. The dataset required data preprocessing and cleaning steps for it to be usable for our models. Values were imputed to resolve missing data issues using the mean and median which were calculated for each variable. From the evaluation results, Random Forest is a more resilient and dependable model, rendering it the optimal selection for this dataset. The results from this project can be used to identify huge datasets where water quality parameters were collected but experiments to find out if the water is potable or not were not done whereby cutting costs that would require laboratory experiments.
+
+The major limitation for this project was the missing data. Though imputation was done to account for this, the values do not carry the true value.
+
+This project also opens up future experiment/research ideas like developing a mobile or computer application which a user can use to input water quality parameters and the application provides water potability status in real time. Lastly, other machine learning models and Artificial Intelligence models such as deep learning can be experimented on this data to see if the performance can be improved.
 
 ## References
 1. Breiman, L. (2001). Random Forests. Machine Learning, 45(1), 5–32. https://doi.org/10.1023/A:1010933404324

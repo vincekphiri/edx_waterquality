@@ -77,7 +77,8 @@ ggplot(water_quality) +
   theme(plot.title = element_text(size = 15L, face = "bold"))
 
 
-#plot the disribution of ph against potability
+water_quality$Potability <- as.factor(water_quality$Potability)
+
 phpplot <- ggplot(water_quality) +
   aes(x = ph, fill = Potability) +
   geom_histogram(bins = 50L) +
@@ -86,7 +87,6 @@ phpplot <- ggplot(water_quality) +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-#plot the disribution of Hardness against potability
 Hardnessplot <- ggplot(water_quality) +
   aes(x = Hardness, fill = Potability) +
   geom_histogram(bins = 50L) +
@@ -95,7 +95,6 @@ Hardnessplot <- ggplot(water_quality) +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-#plot the disribution of Solids against potability
 Solidsplot <- ggplot(water_quality) +
   aes(x = Solids, fill = Potability) +
   geom_histogram(bins = 50L) +
@@ -104,7 +103,6 @@ Solidsplot <- ggplot(water_quality) +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-#plot the disribution of Chloramines against potability
 Chloraminesplot <- ggplot(water_quality) +
   aes(x = Chloramines, fill = Potability) +
   geom_histogram(bins = 50L) +
@@ -113,7 +111,6 @@ Chloraminesplot <- ggplot(water_quality) +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-#plot the disribution of Sulfate against potability
 Sulfateplot <- ggplot(water_quality) +
   aes(x = Sulfate, fill = Potability) +
   geom_histogram(bins = 50L) +
@@ -122,7 +119,6 @@ Sulfateplot <- ggplot(water_quality) +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-#plot the disribution of Conductivity against potability
 Conductivityplot <- ggplot(water_quality) +
   aes(x = Conductivity, fill = Potability) +
   geom_histogram(bins = 50L) +
@@ -131,7 +127,6 @@ Conductivityplot <- ggplot(water_quality) +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-#plot the disribution of Organic carbon against potability
 Organic_carbonplot <- ggplot(water_quality) +
   aes(x = Organic_carbon, fill = Potability) +
   geom_histogram(bins = 50L) +
@@ -140,7 +135,6 @@ Organic_carbonplot <- ggplot(water_quality) +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-#plot the disribution of Trihalomethanes against potability
 Trihalomethanesplot <- ggplot(water_quality) +
   aes(x = Trihalomethanes, fill = Potability) +
   geom_histogram(bins = 50L) +
@@ -149,7 +143,6 @@ Trihalomethanesplot <- ggplot(water_quality) +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-#plot the disribution of Turbidity against potability
 Turbidityplot <- ggplot(water_quality) +
   aes(x = Turbidity, fill = Potability) +
   geom_histogram(bins = 50L) +
@@ -158,8 +151,16 @@ Turbidityplot <- ggplot(water_quality) +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-#Combine the plots
-cowplot::plot_grid(phpplot, Hardnessplot, Solidsplot, Chloraminesplot, Sulfateplot, Conductivityplot, Organic_carbonplot, Trihalomethanesplot, Turbidityplot, ncol = 2)
+#Display the plots
+phpplot
+Hardnessplot
+Solidsplot
+Chloraminesplot
+Sulfateplot
+Conductivityplot
+Organic_carbonplot
+Trihalomethanesplot
+Turbidityplot
 
 #Data variability and outliers for all variables
 box1 <- ggplot(water_quality) +
@@ -225,7 +226,16 @@ box9 <- ggplot(water_quality) +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-cowplot::plot_grid(box1, box2, box3, box4, box5, box6, box7, box8, box9, ncol = 2)
+#plot the charts
+box1
+box2
+box3
+box4
+box5
+box6
+box7
+box8
+box9
 
 #Impute using mean for all the variables
 mean_value_Ph <- round(mean(water_quality$ph, na.rm = TRUE))
@@ -257,30 +267,26 @@ COR_matrix$Potability <- as.integer(COR_matrix$Potability)
 str(COR_matrix)
 
 COR_water_quality = cor(COR_matrix)
+
 corrplot(COR_water_quality, method = 'color', order = 'alphabet')
 
 
 #Data split 80/20 and create training and testing datasets
-set.seed(1)
+set.seed(123)
 sample <- createDataPartition(water_quality$Potability, p = 0.8, list = FALSE)
 train_data <- water_quality[sample, ]
 test_data <- water_quality[-sample, ]
 
-
 # Random Forest
-rf_model <- randomForest(Potability ~ ., data = train_data)
+train_control <- trainControl(method = "cv", number = 8)
+rf_model <- train(Potability ~ ., data = train_data, method = "rf", trControl = train_control) #The model
+rf_predict <- predict(rf_model, test_data) #Predicting the test data
+test_data$Potability_pred <- rf_predict
 
 #evaluate model
-rf_predict <- predict(rf_model, test_data)
-test_data$Potability_pred <- rf_predict
-view(test_data)
-
-##RF Evaluation
-#Create a confusion matrix
 rf_confusionMatrix <- table(test_data$Potability, test_data$Potability_pred)
 rf_confusionMatrix
 
-#calculate model performance accuracy
 rf_classification_accuracy <- sum(diag(rf_confusionMatrix)/sum(rf_confusionMatrix))
 rf_classification_accuracy
 
@@ -290,34 +296,25 @@ rf_FP <- rf_confusionMatrix [1,2]
 rf_FN <- rf_confusionMatrix [2,1]
 rf_TP <- rf_confusionMatrix [2,2]
 
-#Precision
-rf_precision <- rf_TP/(rf_TP=rf_FP)
+#precision metric
+rf_precision <- rf_TP/(rf_TP+rf_FP)
 rf_precision
 
-#recall
+#recall metric
 rf_recall <- rf_TP/(rf_TP+rf_FN)
 rf_recall
 
-#F1 Score
+#f1 score metric
 rf_f1_score <- 2*(rf_precision * rf_recall)/(rf_precision + rf_recall)
 rf_f1_score
 
+#KNN Model
+train_control2 <- trainControl(method = "cv", number = 10)
+knn_model <- train(Potability ~ ., data = train_data, method = "knn", trControl = train_control2) #The model
+knn_predict <- predict(knn_model, test_data) #Predicting the test data
+test_data$Potability_pred2 <- knn_predict
 
-
-
-
-
-
-# K-Nearest Neighbors
-knn_model <- train(Potability ~ ., data = train_data, method = "knn")
-#evaluate model
-knn_predict <- predict(knn_model, test_data)
-test_data$Potability_pred <- knn_predict
-view(test_data)
-
-knn_confusionMatrix <- table(test_data$Potability, test_data$Potability_pred)
-knn_confusionMatrix
-
+#Evaluation
 knn_classification_accuracy <- sum(diag(knn_confusionMatrix)/sum(knn_confusionMatrix))
 knn_classification_accuracy
 
@@ -327,17 +324,19 @@ knn_FP <- knn_confusionMatrix [1,2]
 knn_FN <- knn_confusionMatrix [2,1]
 knn_TP <- knn_confusionMatrix [2,2]
 
-#Precision
-knn_precision <- knn_TP/(knn_TP=knn_FP)
+#precision metric
+knn_precision <- knn_TP/(knn_TP+knn_FP)
 knn_precision
 
-#recall
+#recall metric
 knn_recall <- knn_TP/(knn_TP+knn_FN)
 knn_recall
 
-#F1 Score
+#f1 score metric
 knn_f1_score <- 2*(knn_precision * knn_recall)/(knn_precision + knn_recall)
 knn_f1_score
+
+
 
 #########################################
 
