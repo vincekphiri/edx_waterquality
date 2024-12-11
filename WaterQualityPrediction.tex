@@ -1,0 +1,639 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Predicting Water Quality using Machine Learning},
+  pdfauthor={Vincent Katunga-Phiri},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Predicting Water Quality using Machine Learning}
+\author{Vincent Katunga-Phiri}
+\date{2024-12-11}
+
+\begin{document}
+\maketitle
+
+\subsection{Introduction}\label{introduction}
+
+Water is an essential component of life and the earth's ecosystems.
+Increased urbanisation and industrialisation have increased water demand
+while also reducing water quality (Ejigu, 2021). Oceans, lakes, dams,
+and rivers are the primary water sources for a variety of applications,
+including drinking, irrigation, and public use. According to Spellman
+(2008), water quality includes the physical, chemical, and biological
+properties of water. Potable water is defined as water that is safe to
+drink, tastes good, and is appropriate for domestic use (Spellman,
+2008). This project aims to predict potable water using machine learning
+techniques based on available water parameters such as ph, hardness,
+solids, chloramines, sulphate, conductivity, organic carbon,
+trihalomethanes, and turbidity.
+
+The project will include several essential steps, including the methods
+section describing the machine learning methodologies utilised, the data
+cleaning processes, and the data exploration processes, along with an
+interpretation of the insights derived from each exploration. The model
+development methodology will also be addressed. The results section will
+summarise the model's outcomes and performance metrics using the
+accuracy, precision, recall and f1 score. The conclusion section will
+summarise the project, emphasising its limitations and prospective
+avenues for future research and lastly a reference section.
+
+\subsection{Methods}\label{methods}
+
+\textbf{Dataset Description} The dataset has 3276 observations and 10
+variables. the variables include; \texttt{ph}: An indicator of acidic or
+alkaline condition of water status. \texttt{Hardness}: The concentration
+of calcium and magnesium ions in water, which affects its ability to
+lather with soap. \texttt{Solids}: The total dissolved solids in water,
+indicating the amount of inorganic and organic substances dissolved in
+it. \texttt{Chloramines}: Compounds of chlorine and ammonia used as a
+disinfectant in water treatment to control bacteria and pathogens.
+\texttt{Sulfate}: The concentration of sulfate ions (SO₄²⁻) in water,
+which can affect taste and, at high levels, cause laxative effects.
+\texttt{Conductivity}: A measure of water's ability to conduct
+electricity, which reflects the concentration of dissolved salts or
+ions. \texttt{Organic\_carbon}: The amount of organic compounds in
+water, often used as an indicator of water quality and pollution.
+\texttt{Trihalomethanes}: The cloudiness or haziness of water caused by
+suspended particles, which can affect aesthetic quality and microbial
+safety. \texttt{Potability}: An indicator of whether water is safe to
+drink, considering its chemical, physical, and biological quality.
+
+\begin{verbatim}
+## 'data.frame':    3276 obs. of  10 variables:
+##  $ ph             : num  NA 3.72 8.1 8.32 9.09 ...
+##  $ Hardness       : num  205 129 224 214 181 ...
+##  $ Solids         : num  20791 18630 19910 22018 17979 ...
+##  $ Chloramines    : num  7.3 6.64 9.28 8.06 6.55 ...
+##  $ Sulfate        : num  369 NA NA 357 310 ...
+##  $ Conductivity   : num  564 593 419 363 398 ...
+##  $ Organic_carbon : num  10.4 15.2 16.9 18.4 11.6 ...
+##  $ Trihalomethanes: num  87 56.3 66.4 100.3 32 ...
+##  $ Turbidity      : num  2.96 4.5 3.06 4.63 4.08 ...
+##  $ Potability     : int  0 0 0 0 0 0 0 0 0 0 ...
+\end{verbatim}
+
+From the output above, all variables are numeric variables (continuous)
+except for the potability variable which is numeric. We can also see NA
+values in the dataset and these have to be handled before performing the
+machine learning models.
+
+\begin{verbatim}
+##        ph            Hardness          Solids         Chloramines    
+##  Min.   : 0.000   Min.   : 47.43   Min.   :  320.9   Min.   : 0.352  
+##  1st Qu.: 6.093   1st Qu.:176.85   1st Qu.:15666.7   1st Qu.: 6.127  
+##  Median : 7.037   Median :196.97   Median :20927.8   Median : 7.130  
+##  Mean   : 7.081   Mean   :196.37   Mean   :22014.1   Mean   : 7.122  
+##  3rd Qu.: 8.062   3rd Qu.:216.67   3rd Qu.:27332.8   3rd Qu.: 8.115  
+##  Max.   :14.000   Max.   :323.12   Max.   :61227.2   Max.   :13.127  
+##  NA's   :491                                                         
+##     Sulfate       Conductivity   Organic_carbon  Trihalomethanes  
+##  Min.   :129.0   Min.   :181.5   Min.   : 2.20   Min.   :  0.738  
+##  1st Qu.:307.7   1st Qu.:365.7   1st Qu.:12.07   1st Qu.: 55.845  
+##  Median :333.1   Median :421.9   Median :14.22   Median : 66.622  
+##  Mean   :333.8   Mean   :426.2   Mean   :14.28   Mean   : 66.396  
+##  3rd Qu.:360.0   3rd Qu.:481.8   3rd Qu.:16.56   3rd Qu.: 77.337  
+##  Max.   :481.0   Max.   :753.3   Max.   :28.30   Max.   :124.000  
+##  NA's   :781                                     NA's   :162      
+##    Turbidity       Potability    
+##  Min.   :1.450   Min.   :0.0000  
+##  1st Qu.:3.440   1st Qu.:0.0000  
+##  Median :3.955   Median :0.0000  
+##  Mean   :3.967   Mean   :0.3901  
+##  3rd Qu.:4.500   3rd Qu.:1.0000  
+##  Max.   :6.739   Max.   :1.0000  
+## 
+\end{verbatim}
+
+From the output above, we can notice that some variables have a huge
+difference between the 3rd quantile and the maximum value in the dataset
+indicating some outliers.
+
+\begin{verbatim}
+##         ph Hardness   Solids Chloramines  Sulfate Conductivity Organic_carbon
+## 1       NA 204.8905 20791.32    7.300212 368.5164     564.3087      10.379783
+## 2 3.716080 129.4229 18630.06    6.635246       NA     592.8854      15.180013
+## 3 8.099124 224.2363 19909.54    9.275884       NA     418.6062      16.868637
+## 4 8.316766 214.3734 22018.42    8.059332 356.8861     363.2665      18.436524
+## 5 9.092223 181.1015 17978.99    6.546600 310.1357     398.4108      11.558279
+## 6 5.584087 188.3133 28748.69    7.544869 326.6784     280.4679       8.399735
+##   Trihalomethanes Turbidity Potability
+## 1        86.99097  2.963135          0
+## 2        56.32908  4.500656          0
+## 3        66.42009  3.055934          0
+## 4       100.34167  4.628771          0
+## 5        31.99799  4.075075          0
+## 6        54.91786  2.559708          0
+\end{verbatim}
+
+The output above is just a glimpse of the 6 first observations in the
+dataset. NA values can be seen.
+
+\textbf{Missing Data} Since we have seen that our dataset comprises of
+missing values, the figure below is a visual representation of the
+extent of missingness in the dataset. There are 1434 observations with
+missing values in either of the variables in the dataset.
+
+\begin{verbatim}
+## [1] 1434
+\end{verbatim}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/missingness-1.pdf}
+
+\begin{verbatim}
+## 
+##  Variables sorted by number of missings: 
+##         Variable      Count
+##          Sulfate 0.23840049
+##               ph 0.14987790
+##  Trihalomethanes 0.04945055
+##         Hardness 0.00000000
+##           Solids 0.00000000
+##      Chloramines 0.00000000
+##     Conductivity 0.00000000
+##   Organic_carbon 0.00000000
+##        Turbidity 0.00000000
+##       Potability 0.00000000
+\end{verbatim}
+
+From the chart above, the variables \texttt{Sulfate} and \texttt{ph}
+have the highest number of missing values with over 20\% missing values
+for \texttt{Sulfate} and 15\% for \texttt{ph}. Looking at this, there is
+need for dealing with the missing data, either by imputing with the
+mean, mode, median or using a complex algorithm for imputation like k
+Nearest Neighbors (KNN) algorithm.
+
+\subsubsection{Explaratory Analysis}\label{explaratory-analysis}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/potability-1.pdf}
+The plot above shows that the dataset contains a substantial number of
+observations with non-potable water, approximately 2000, representing
+approximately 59\%, while observations of potable water make up
+approximately 40\%.
+
+\textbf{Distribution of the water parameters against Potability}
+\includegraphics{WaterQualityPrediction_files/figure-latex/phpplot-1.pdf}
+\includegraphics{WaterQualityPrediction_files/figure-latex/Hardnessplot-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/Solidsplot-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/Chloraminesplot-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/Sulfateplot-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/Conductivityplot-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/Organic_carbonplot-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/Trihalomethanesplot-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/Turbidityplot-1.pdf}
+
+The output indicates that nearly all variables in the dataset show a
+normal distribution. Despite the presence of outliers, imputation
+utilising mean, mode, or median will be easily performed due to the
+normal distribution of the data. It also improves model efficacy. In
+nearly all distributions, the spread is similar, indicating comparable
+variability of parameter values for potable and non-potable water.
+Furthermore, all distributions indicate that the dataset contains a
+greater quantity of non-potable water compared to potable water. The
+distributions for both potable and non-potable water appear to be
+centred at comparable levels across all distributions.
+
+The box plots below confirms our observation that the variability of the
+data in both potable and non-potable is similar e.g., the mean looks the
+same in all distributions. We can also notice outliers in the dataset.
+The quantiles also look similar.
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/box1-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/box2-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/box3-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/box4-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/box5-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/box6-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/box7-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/box8-1.pdf}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/box9-1.pdf}
+
+\textbf{Data Cleaning and Preprocessing} Initially, as indicated in the
+dataset description, our dependent variable \texttt{potability} is an
+integer. To perform classification modelling, it is necessary to convert
+this variable into a factor. Secondly, the dataset's missing values must
+be addressed. Given the normal distribution of the dataset, the mean for
+each variable was employed to impute values for the missing data, with
+the exception of the \texttt{Solids} variable, which shows a significant
+deviation from the mean. The median was employed for the \texttt{solids}
+variable.
+
+\begin{verbatim}
+##        ph            Hardness          Solids         Chloramines    
+##  Min.   : 0.000   Min.   : 47.43   Min.   :  320.9   Min.   : 0.352  
+##  1st Qu.: 6.278   1st Qu.:176.85   1st Qu.:15666.7   1st Qu.: 6.127  
+##  Median : 7.000   Median :196.97   Median :20927.8   Median : 7.130  
+##  Mean   : 7.069   Mean   :196.37   Mean   :22014.1   Mean   : 7.122  
+##  3rd Qu.: 7.870   3rd Qu.:216.67   3rd Qu.:27332.8   3rd Qu.: 8.115  
+##  Max.   :14.000   Max.   :323.12   Max.   :61227.2   Max.   :13.127  
+##     Sulfate       Conductivity   Organic_carbon  Trihalomethanes  
+##  Min.   :129.0   Min.   :181.5   Min.   : 2.20   Min.   :  0.738  
+##  1st Qu.:317.1   1st Qu.:365.7   1st Qu.:12.07   1st Qu.: 56.648  
+##  Median :334.0   Median :421.9   Median :14.22   Median : 66.000  
+##  Mean   :333.8   Mean   :426.2   Mean   :14.28   Mean   : 66.377  
+##  3rd Qu.:350.4   3rd Qu.:481.8   3rd Qu.:16.56   3rd Qu.: 76.667  
+##  Max.   :481.0   Max.   :753.3   Max.   :28.30   Max.   :124.000  
+##    Turbidity     Potability
+##  Min.   :1.450   Yes:1278  
+##  1st Qu.:3.440   No :1998  
+##  Median :3.955             
+##  Mean   :3.967             
+##  3rd Qu.:4.500             
+##  Max.   :6.739
+\end{verbatim}
+
+\includegraphics{WaterQualityPrediction_files/figure-latex/correlation2-1.pdf}
+The correlation matrix above clearly indicates the absence of
+correlation among the variables.
+
+\textbf{Modelling Approaches} For this project, Random Forest and K
+Nearest Neighbors were used to predict water potability. These models
+take into account that the dependent variable be a factor with more than
+one level (Han et al., 2022). According to (Breiman, 2001) is a
+classification and regression model that uses the decision tree model
+approach to create a forest consisting of multiple decision trees. K
+Nearest Neighbors is also a classification machine learning model that
+classifies a data point by determining the predominant class among its k
+nearest neighbours in the feature space (Cover \& Hart, 1967).
+
+\textbf{Data Split} The caret package was utilised to partition the data
+according to the 80/20 rule, allocating 80\% for training and 20\% for
+testing. Set.seed is used to ensure the reproducibility of the model.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{)}
+\NormalTok{sample }\OtherTok{\textless{}{-}} \FunctionTok{createDataPartition}\NormalTok{(water\_quality}\SpecialCharTok{$}\NormalTok{Potability, }\AttributeTok{p =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{list =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{train\_data }\OtherTok{\textless{}{-}}\NormalTok{ water\_quality[sample, ]}
+\NormalTok{test\_data }\OtherTok{\textless{}{-}}\NormalTok{ water\_quality[}\SpecialCharTok{{-}}\NormalTok{sample, ]}
+\end{Highlighting}
+\end{Shaded}
+
+\emph{Random Forest Model}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{train\_control }\OtherTok{\textless{}{-}} \FunctionTok{trainControl}\NormalTok{(}\AttributeTok{method =} \StringTok{"cv"}\NormalTok{, }\AttributeTok{number =} \DecValTok{13}\NormalTok{)}
+\NormalTok{rf\_model }\OtherTok{\textless{}{-}} \FunctionTok{train}\NormalTok{(Potability }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{data =}\NormalTok{ train\_data, }\AttributeTok{method =} \StringTok{"rf"}\NormalTok{, }\AttributeTok{trControl =}\NormalTok{ train\_control) }\CommentTok{\#The model}
+\NormalTok{rf\_predict }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(rf\_model, test\_data) }\CommentTok{\#Predicting the test data}
+\NormalTok{test\_data}\SpecialCharTok{$}\NormalTok{Potability\_pred }\OtherTok{\textless{}{-}}\NormalTok{ rf\_predict}
+\end{Highlighting}
+\end{Shaded}
+
+\emph{KNN Model}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knn\_model }\OtherTok{\textless{}{-}} \FunctionTok{train}\NormalTok{(Potability }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{data =}\NormalTok{ train\_data, }\AttributeTok{method =} \StringTok{"knn"}\NormalTok{) }\CommentTok{\#The model}
+\NormalTok{knn\_predict }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(knn\_model, test\_data) }\CommentTok{\#Predicting the test data}
+\NormalTok{test\_data}\SpecialCharTok{$}\NormalTok{Potability\_pred }\OtherTok{\textless{}{-}}\NormalTok{ knn\_predict}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Results}\label{results}
+
+According to Han et al.~(2022), when dealing with nominal dependent
+variables, evaluation metrics such as accuracy, precision, recall, and
+F1-Score should be utilised instead of the Root Mean Squared Error
+(RMSE). Given that the dependent variable \texttt{potability} is
+nominal, the following evaluation metrics will be employed.
+
+\emph{Random Forest Model Confusion matrix} The rows in the confusion
+matrix below represent actual labels and the column represent predicted
+label. So confusion matrix output below indicates that; \textbf{True
+Positives (TP):} Correctly predicted 60 observation as potable water.
+\textbf{True Negatives (TN):} Correctly predicted 451 observation as
+non-potable water. \textbf{False Positives (FP):} Incorrectly predicted
+148 observations as potable water while they are non-potable.
+\textbf{False Negatives (FN):} Incorrectly predicted 278 observations as
+non-potable water while they are potable.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rf\_confusionMatrix }\OtherTok{\textless{}{-}} \FunctionTok{table}\NormalTok{(test\_data}\SpecialCharTok{$}\NormalTok{Potability, test\_data}\SpecialCharTok{$}\NormalTok{Potability\_pred)}
+\NormalTok{rf\_confusionMatrix}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      
+##       Yes  No
+##   Yes  60 195
+##   No   76 323
+\end{verbatim}
+
+\emph{Random Forest Model Accuracy} According to (Witten et al., 2016),
+accuracy is the proportion of correctly predicted instances to the total
+number of instances.For this random forest model, the model is correct
+by 57\%.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rf\_classification\_accuracy }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(}\FunctionTok{diag}\NormalTok{(rf\_confusionMatrix)}\SpecialCharTok{/}\FunctionTok{sum}\NormalTok{(rf\_confusionMatrix))}
+\NormalTok{rf\_classification\_accuracy}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.5856269
+\end{verbatim}
+
+The code below extracts the elements of the confusion matrix
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Elements of confusion matrix}
+\NormalTok{rf\_TN }\OtherTok{\textless{}{-}}\NormalTok{ rf\_confusionMatrix [}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}
+\NormalTok{rf\_FP }\OtherTok{\textless{}{-}}\NormalTok{ rf\_confusionMatrix [}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{]}
+\NormalTok{rf\_FN }\OtherTok{\textless{}{-}}\NormalTok{ rf\_confusionMatrix [}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{]}
+\NormalTok{rf\_TP }\OtherTok{\textless{}{-}}\NormalTok{ rf\_confusionMatrix [}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\emph{Random Forest Model Precision Evaluation} Precision denotes the
+proportion of accurately predicted positive cases (Witten et al., 2016).
+From the output of the precision calculation, it shows that 62\% of the
+portable predicted observations are indeed potable water.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rf\_precision }\OtherTok{\textless{}{-}}\NormalTok{ rf\_TP}\SpecialCharTok{/}\NormalTok{(rf\_TP}\SpecialCharTok{+}\NormalTok{rf\_FP)}
+\NormalTok{rf\_precision}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.6235521
+\end{verbatim}
+
+\emph{Random Forest Model Recall Evaluation} Recall, or sensitivity,
+measures the model's ability to accurately identify all positive
+instances present in the dataset (Witten et al., 2016). The model
+captures 75\% of actual potable observations.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rf\_recall }\OtherTok{\textless{}{-}}\NormalTok{ rf\_TP}\SpecialCharTok{/}\NormalTok{(rf\_TP}\SpecialCharTok{+}\NormalTok{rf\_FN)}
+\NormalTok{rf\_recall}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.8095238
+\end{verbatim}
+
+\emph{Random Forest Model F1 Score Evaluation} The F1 score combines
+metrics that incorporate precision and recall, providing a comprehensive
+evaluation of model performance (Witten et al., 2016). The balance
+between Precision and Recall for \texttt{potablity} is excellent at
+68\%.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rf\_f1\_score }\OtherTok{\textless{}{-}} \DecValTok{2}\SpecialCharTok{*}\NormalTok{(rf\_precision }\SpecialCharTok{*}\NormalTok{ rf\_recall)}\SpecialCharTok{/}\NormalTok{(rf\_precision }\SpecialCharTok{+}\NormalTok{ rf\_recall)}
+\NormalTok{rf\_f1\_score}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.7044711
+\end{verbatim}
+
+\emph{KNN Confusion Matrix Model Confusion matrix} The rows in the
+confusion matrix below represent actual labels and the column represent
+predicted label. So confusion matrix output below indicates that;
+\textbf{True Positives (TP):} Correctly predicted 92 observation as
+potable water. \textbf{True Negatives (TN):} Correctly predicted 461
+observation as non-potable water. \textbf{False Positives (FP):}
+Incorrectly predicted 291 observations as potable water while they are
+non-potable. \textbf{False Negatives (FN):} Incorrectly predicted 136
+observations as non-potable water while they are potable.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knn\_confusionMatrix }\OtherTok{\textless{}{-}} \FunctionTok{table}\NormalTok{(test\_data}\SpecialCharTok{$}\NormalTok{Potability, test\_data}\SpecialCharTok{$}\NormalTok{Potability\_pred)}
+\NormalTok{knn\_confusionMatrix}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      
+##       Yes  No
+##   Yes  60 195
+##   No   76 323
+\end{verbatim}
+
+\emph{KNN Model Accuracy} For this random forest model, the model is
+correct by 56\%.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knn\_classification\_accuracy }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(}\FunctionTok{diag}\NormalTok{(knn\_confusionMatrix)}\SpecialCharTok{/}\FunctionTok{sum}\NormalTok{(knn\_confusionMatrix))}
+\NormalTok{knn\_classification\_accuracy}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.5856269
+\end{verbatim}
+
+The code below extracts the elements of the confusion matrix
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knn\_TN }\OtherTok{\textless{}{-}}\NormalTok{ knn\_confusionMatrix [}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}
+\NormalTok{knn\_FP }\OtherTok{\textless{}{-}}\NormalTok{ knn\_confusionMatrix [}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{]}
+\NormalTok{knn\_FN }\OtherTok{\textless{}{-}}\NormalTok{ knn\_confusionMatrix [}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{]}
+\NormalTok{knn\_TP }\OtherTok{\textless{}{-}}\NormalTok{ knn\_confusionMatrix [}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\emph{Random Forest Model Precision Evaluation} From the output of the
+precision calculation, it shows that 61\% of the portable predicted
+observations are indeed potable water.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knn\_precision }\OtherTok{\textless{}{-}}\NormalTok{ knn\_TP}\SpecialCharTok{/}\NormalTok{(knn\_TP}\SpecialCharTok{+}\NormalTok{knn\_FP)}
+\NormalTok{knn\_precision}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.6235521
+\end{verbatim}
+
+\emph{KNN Model Recall Evaluation} The model captures 77\% of actual
+potable observations.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knn\_recall }\OtherTok{\textless{}{-}}\NormalTok{ knn\_TP}\SpecialCharTok{/}\NormalTok{(knn\_TP}\SpecialCharTok{+}\NormalTok{knn\_FN)}
+\NormalTok{knn\_recall}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.8095238
+\end{verbatim}
+
+\emph{KNN Model F1 Score Evaluation} The balance between Precision and
+Recall for \texttt{potablity} is excellent at 68\%.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knn\_f1\_score }\OtherTok{\textless{}{-}} \DecValTok{2}\SpecialCharTok{*}\NormalTok{(knn\_precision }\SpecialCharTok{*}\NormalTok{ knn\_recall)}\SpecialCharTok{/}\NormalTok{(knn\_precision }\SpecialCharTok{+}\NormalTok{ knn\_recall)}
+\NormalTok{knn\_f1\_score}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.7044711
+\end{verbatim}
+
+\subsection{Conclusion}\label{conclusion}
+
+\subsection{References}\label{references}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Breiman, L. (2001). Random Forests. Machine Learning, 45(1), 5--32.
+  \url{https://doi.org/10.1023/A:1010933404324}
+\item
+  Cover, T., \& Hart, P. (1967). Nearest neighbor pattern
+  classification. IEEE Transactions on Information Theory, 13(1),
+  21--27. \url{https://doi.org/10.1109/TIT.1967.1053964}
+\item
+  Han, J., Pei, J., \& Tong, H. (2022). Data mining: Concepts and
+  techniques. Morgan kaufmann.
+\item
+  Harper, F. M., \& Konstan, J. A. (2015). The movielens datasets:
+  History and context. Acm Transactions on Interactive Intelligent
+  Systems (Tiis), 5(4), 1--19.
+\item
+  Karunasingha, D. S. K. (2022). Root mean square error or mean absolute
+  error? Use their ratio as well. Information Sciences, 585, 609--629.
+  \url{https://doi.org/10.1016/j.ins.2021.11.036}
+\item
+  Witten, I., Frank, E., Hall, M. A., \& Pal, C. J. (2016). Data Mining:
+  Practical Machine Learning Tools and Techniques.
+\end{enumerate}
+
+\end{document}

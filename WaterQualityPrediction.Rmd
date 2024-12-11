@@ -1,0 +1,528 @@
+---
+title: "Predicting Water Quality using Machine Learning"
+author: "Vincent Katunga-Phiri"
+date: "2024-12-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r prerequisite, message=FALSE, warning=FALSE, include=FALSE}
+#Clear memory and objects from workspace
+rm(list = ls())
+gc()
+
+#Load Required libraries
+if (!require(pacman)) {
+  install.packages("pacman", repos = "https://cran.r-project.org")
+  library(pacman)
+}
+
+if (!require(tidyverse))
+  install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+if (!require(lubridate))
+  install.packages("lubridate", repos = "http://cran.us.r-project.org")
+if (!require(caret))
+  install.packages("caret", repos = "http://cran.us.r-project.org")
+if (!require(ggplot2))
+  install.packages("ggplot2", repos = "http://cran.us.r-project.org")
+if (!require(knitr))
+  install.packages("knitr", repos = "http://cran.us.r-project.org")
+if (!require(data.table))
+  install.packages("data.table", repos = "http://cran.us.r-project.org")
+if (!require(VIM))
+  install.packages("VIM", repos = "http://cran.us.r-project.org")
+if (!require(corrplot))
+  install.packages("corrplot", repos = "http://cran.us.r-project.org")
+if (!require(cowplot))
+  install.packages("cowplot", repos = "http://cran.us.r-project.org")
+if (!require(randomForest))
+  install.packages("randomForest", repos = "http://cran.us.r-project.org")
+if (!require(rpart))
+  install.packages("rpart", repos = "http://cran.us.r-project.org")
+
+pacman::p_load(tidyverse, lubridate, caret, ggplot2, knitr, data.table, VIM, corrplot, cowplot, rpart, randomForest)
+
+#Import the water quality dataset
+water_quality <- read.csv('./data/water_potability.csv')
+```
+
+## Introduction
+
+Water is an essential component of life and the earth's ecosystems. Increased urbanisation and industrialisation have increased water demand while also reducing water quality (Ejigu, 2021). Oceans, lakes, dams, and rivers are the primary water sources for a variety of applications, including drinking, irrigation, and public use. According to Spellman (2008), water quality includes the physical, chemical, and biological properties of water. Potable water is defined as water that is safe to drink, tastes good, and is appropriate for domestic use (Spellman, 2008). This project aims to predict potable water using machine learning techniques based on available water parameters such as ph, hardness, solids, chloramines, sulphate, conductivity, organic carbon, trihalomethanes, and turbidity.
+
+The project will include several essential steps, including the methods section describing the machine learning methodologies utilised, the data cleaning processes, and the data exploration processes, along with an interpretation of the insights derived from each exploration. The model development methodology will also be addressed. The results section will summarise the model’s outcomes and performance metrics using the accuracy, precision, recall and f1 score. The conclusion section will summarise the project, emphasising its limitations and prospective avenues for future research and lastly a reference section.
+
+## Methods
+**Dataset Description** <br>
+The dataset has 3276 observations and 10 variables. the variables include;<br>
+`ph`: An indicator of acidic or alkaline condition of water status.<br>
+`Hardness`: The concentration of calcium and magnesium ions in water, which affects its ability to lather with soap.<br>
+`Solids`: The total dissolved solids in water, indicating the amount of inorganic and organic substances dissolved in it.<br>
+`Chloramines`: Compounds of chlorine and ammonia used as a disinfectant in water treatment to control bacteria and pathogens.<br>
+`Sulfate`: The concentration of sulfate ions (SO₄²⁻) in water, which can affect taste and, at high levels, cause laxative effects.<br>
+`Conductivity`: A measure of water's ability to conduct electricity, which reflects the concentration of dissolved salts or ions.<br>
+`Organic_carbon`: The amount of organic compounds in water, often used as an indicator of water quality and pollution.<br>
+`Trihalomethanes`: The cloudiness or haziness of water caused by suspended particles, which can affect aesthetic quality and microbial safety.<br>
+`Potability`: An indicator of whether water is safe to drink, considering its chemical, physical, and biological quality.<br>
+
+```{r description1, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+str(water_quality)
+```
+From the output above, all variables are numeric variables (continuous) except for the potability variable which is numeric. We can also see NA values in the dataset and these have to be handled before performing the machine learning models.
+```{r description2, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+summary(water_quality)
+```
+From the output above, we can notice that some variables have a huge difference between the 3rd quantile and the maximum value in the dataset indicating some outliers.
+
+```{r description 3, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+head(water_quality)
+```
+The output above is just a glimpse of the 6 first observations in the dataset. NA values can be seen.
+
+**Missing Data** <br>
+Since we have seen that our dataset comprises of missing values, the figure below is a visual representation of the extent of missingness in the dataset. There are 1434 observations with missing values in either of the variables in the dataset.
+
+```{r missingness, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+#Check for missing variables
+sum(is.na(water_quality))
+
+#plot missingness using the VIM package
+missingness <- aggr(
+  water_quality,
+  numbers = TRUE,
+  prop = TRUE,
+  sortVars = TRUE,
+  labels = names(water_quality),
+  cex.axis = 0.7,
+  cex.lab = 0.7
+)
+```
+From the chart above, the variables `Sulfate` and `ph` have the highest number of missing values with over 20% missing values for `Sulfate` and 15% for `ph`. Looking at this, there is need for dealing with the missing data, either by imputing with the mean, mode, median or using a complex algorithm for imputation like k Nearest Neighbors (KNN) algorithm.
+
+### Explaratory Analysis
+
+```{r recode_potability, message=FALSE, warning=FALSE, include=FALSE}
+#recode the values from 1 and 0 to Yes and No
+water_quality <- water_quality %>% 
+  mutate(Potability = factor(Potability, levels = c(1, 0), labels = c("Yes", "No")))
+```
+<br>
+```{r potability, echo=FALSE, message=FALSE, warning=FALSE}
+#Plot water potability distribution
+ggplot(water_quality) +
+  aes(x = Potability, fill = Potability) +
+  geom_bar(position = "dodge") +
+  scale_fill_manual(values = c("#009990", "#E1FFBB") ) +
+  labs(title = "Distribution of Water Potability") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 15L, face = "bold"))
+
+```
+<br>
+The plot above shows that the dataset contains a substantial number of observations with non-potable water, approximately 2000, representing approximately 59%, while observations of potable water make up approximately 40%.
+<br>
+```{r exploratory1, echo=FALSE, message=FALSE, warning=FALSE}
+water_quality$Potability <- as.factor(water_quality$Potability)
+
+phpplot <- ggplot(water_quality) +
+  aes(x = ph, fill = Potability) +
+  geom_histogram(bins = 50L) +
+  scale_fill_brewer(palette = "Set2") +  # Use a Brewer palette
+  labs(title = "ph distribution against potability", fill = "Potability") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+Hardnessplot <- ggplot(water_quality) +
+  aes(x = Hardness, fill = Potability) +
+  geom_histogram(bins = 50L) +
+  scale_fill_brewer(palette = "Set2") +  # Use a Brewer palette
+  labs(title = "Hardness distribution against potability", fill = "Potability") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+Solidsplot <- ggplot(water_quality) +
+  aes(x = Solids, fill = Potability) +
+  geom_histogram(bins = 50L) +
+  scale_fill_brewer(palette = "Set2") +  # Use a Brewer palette
+  labs(title = "Solids distribution against potability", fill = "Potability") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+Chloraminesplot <- ggplot(water_quality) +
+  aes(x = Chloramines, fill = Potability) +
+  geom_histogram(bins = 50L) +
+  scale_fill_brewer(palette = "Set2") +  # Use a Brewer palette
+  labs(title = "Chloramines distribution against potability", fill = "Potability") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+Sulfateplot <- ggplot(water_quality) +
+  aes(x = Sulfate, fill = Potability) +
+  geom_histogram(bins = 50L) +
+  scale_fill_brewer(palette = "Set2") +  # Use a Brewer palette
+  labs(title = "Sulfate distribution against potability", fill = "Potability") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+Conductivityplot <- ggplot(water_quality) +
+  aes(x = Conductivity, fill = Potability) +
+  geom_histogram(bins = 50L) +
+  scale_fill_brewer(palette = "Set2") +  # Use a Brewer palette
+  labs(title = "Conductivity distribution against potability", fill = "Potability") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+Organic_carbonplot <- ggplot(water_quality) +
+  aes(x = Organic_carbon, fill = Potability) +
+  geom_histogram(bins = 50L) +
+  scale_fill_brewer(palette = "Set2") +  # Use a Brewer palette
+  labs(title = "Organic_carbon distribution against potability", fill = "Potability") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+Trihalomethanesplot <- ggplot(water_quality) +
+  aes(x = Trihalomethanes, fill = Potability) +
+  geom_histogram(bins = 50L) +
+  scale_fill_brewer(palette = "Set2") +  # Use a Brewer palette
+  labs(title = "Trihalomethanes distribution against potability", fill = "Potability") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+Turbidityplot <- ggplot(water_quality) +
+  aes(x = Turbidity, fill = Potability) +
+  geom_histogram(bins = 50L) +
+  scale_fill_brewer(palette = "Set2") +  # Use a Brewer palette
+  labs(title = "Turbidity distribution against potability", fill = "Potability") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+**Distribution of the water parameters against Potability** <br>
+```{r phpplot, echo=FALSE, message=FALSE, warning=FALSE}
+phpplot 
+```
+```{r Hardnessplot, echo=FALSE, message=FALSE, warning=FALSE}
+Hardnessplot 
+```
+
+```{r Solidsplot, echo=FALSE, message=FALSE, warning=FALSE}
+Solidsplot 
+```
+
+```{r Chloraminesplot, echo=FALSE, message=FALSE, warning=FALSE}
+Chloraminesplot 
+```
+
+```{r Sulfateplot, echo=FALSE, message=FALSE, warning=FALSE}
+Sulfateplot 
+```
+
+```{r Conductivityplot, echo=FALSE, message=FALSE, warning=FALSE}
+Conductivityplot 
+```
+
+```{r Organic_carbonplot, echo=FALSE, message=FALSE, warning=FALSE}
+Organic_carbonplot 
+```
+
+```{r Trihalomethanesplot, echo=FALSE, message=FALSE, warning=FALSE}
+Trihalomethanesplot 
+```
+
+```{r Turbidityplot, echo=FALSE, message=FALSE, warning=FALSE}
+Turbidityplot 
+```
+
+The output indicates that nearly all variables in the dataset show a normal distribution. Despite the presence of outliers, imputation utilising mean, mode, or median will be easily performed due to the normal distribution of the data. It also improves model efficacy. 
+In nearly all distributions, the spread is similar, indicating comparable variability of parameter values for potable and non-potable water. Furthermore, all distributions indicate that the dataset contains a greater quantity of non-potable water compared to potable water. The distributions for both potable and non-potable water appear to be centred at comparable levels across all distributions. 
+<br>
+
+**Variability of water parameters against potability** <br>
+```{r plot2, message=FALSE, warning=FALSE, include=FALSE}
+#Data variability and outliers for all variables
+box1 <- ggplot(water_quality) +
+  aes(x = "", y = ph, fill = Potability) +
+  geom_boxplot() +
+  labs(title = "ph Data Variability & Outliers") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+box2 <- ggplot(water_quality) +
+  aes(x = "", y = Hardness, fill = Potability) +
+  geom_boxplot() +
+  labs(title = "Hardness Data Variability & Outliers") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+box3 <- ggplot(water_quality) +
+  aes(x = "", y = Solids, fill = Potability) +
+  geom_boxplot() +
+  labs(title = "Solids Data Variability & Outliers") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+box4 <- ggplot(water_quality) +
+  aes(x = "", y = Chloramines, fill = Potability) +
+  geom_boxplot() +
+  labs(title = "Chloramines Data Variability & Outliers") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+box5 <- ggplot(water_quality) +
+  aes(x = "", y = Sulfate, fill = Potability) +
+  geom_boxplot() +
+  labs(title = "Sulfate Data Variability & Outliers") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+box6 <- ggplot(water_quality) +
+  aes(x = "", y = Conductivity, fill = Potability) +
+  geom_boxplot() +
+  labs(title = "Conductivity Data Variability & Outliers") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+box7 <- ggplot(water_quality) +
+  aes(x = "", y = Organic_carbon, fill = Potability) +
+  geom_boxplot() +
+  labs(title = "Organic_carbon Data Variability & Outliers") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+box8 <- ggplot(water_quality) +
+  aes(x = "", y = Trihalomethanes, fill = Potability) +
+  geom_boxplot() +
+  labs(title = "Trihalomethanes Data Variability & Outliers") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+
+box9 <- ggplot(water_quality) +
+  aes(x = "", y = Turbidity, fill = Potability) +
+  geom_boxplot() +
+  labs(title = "Turbidity Data Variability & Outliers") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+The box plots below confirms our observation that the variability of the data in both potable and non-potable is similar e.g., the mean looks the same in all distributions. We can also notice outliers in the dataset. The quantiles also look similar.
+
+```{r box1, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+box1
+```
+
+```{r box2, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+box2
+```
+
+```{r box3, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+box3
+```
+
+```{r box4, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+box4
+```
+
+```{r box5, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+box5
+```
+
+```{r box6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+box6
+```
+
+```{r box7, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+box7
+```
+
+```{r box8, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+box8
+```
+
+```{r box9, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+box9
+```
+
+**Data Cleaning and Preprocessing** <br>
+Initially, as indicated in the dataset description, our dependent variable `potability` is an integer. To perform classification modelling, it is necessary to convert this variable into a factor. Secondly, the dataset's missing values must be addressed. Given the normal distribution of the dataset, the mean for each variable was employed to impute values for the missing data, with the exception of the `Solids` variable, which shows a significant deviation from the mean. The median was employed for the `solids` variable.
+
+```{r imputation, echo=FALSE, message=FALSE, warning=FALSE}
+mean_value_Ph <- round(mean(water_quality$ph, na.rm = TRUE))
+mean_value_Chloramines <- round(mean(water_quality$Chloramines, na.rm = TRUE))
+mean_value_Conductivity <- round(mean(water_quality$Conductivity, na.rm = TRUE))
+mean_value_Hardness <- round(mean(water_quality$Hardness, na.rm = TRUE))
+mean_value_OrganicCarbon <- round(mean(water_quality$Organic_carbon, na.rm = TRUE))
+median_value_Solids <- round(median(water_quality$Solids, na.rm = TRUE))
+mean_value_Sulfate <- round(mean(water_quality$Sulfate, na.rm = TRUE))
+mean_value_Trihalomethanes <- round(mean(water_quality$Trihalomethanes, na.rm = TRUE))
+mean_value_Turbidity <- round(mean(water_quality$Turbidity, na.rm = TRUE))
+
+water_quality <- water_quality %>%
+  mutate(ph = ifelse(is.na(ph), mean_value_Ph, ph)) %>% 
+  mutate(Chloramines = ifelse(is.na(Chloramines), mean_value_Chloramines, Chloramines)) %>% 
+  mutate(Conductivity = ifelse(is.na(Conductivity), mean_value_Conductivity, Conductivity)) %>% 
+  mutate(Hardness = ifelse(is.na(Hardness), mean_value_Hardness, Hardness)) %>% 
+  mutate(Organic_carbon = ifelse(is.na(Organic_carbon), mean_value_OrganicCarbon, Organic_carbon)) %>% 
+  mutate(Solids = ifelse(is.na(Solids), median_value_Solids, Solids)) %>% 
+  mutate(Sulfate = ifelse(is.na(Sulfate), mean_value_Sulfate, Sulfate)) %>% 
+  mutate(Trihalomethanes = ifelse(is.na(Trihalomethanes), mean_value_Trihalomethanes, Trihalomethanes)) %>% 
+  mutate(Turbidity = ifelse(is.na(Turbidity), mean_value_Turbidity, Turbidity)) 
+
+```
+
+```{r imputed_summary, echo=FALSE, message=FALSE, warning=FALSE}
+summary(water_quality)
+```
+```{r correlation, message=FALSE, warning=FALSE, include=FALSE}
+#plot a Correlation matrix
+COR_matrix <- water_quality
+COR_matrix$Potability <- as.integer(COR_matrix$Potability)
+str(COR_matrix)
+
+COR_water_quality = cor(COR_matrix)
+```
+```{r correlation2, echo=FALSE, message=FALSE, warning=FALSE}
+corrplot(COR_water_quality, method = 'color', order = 'alphabet')
+```
+<br>
+The correlation matrix above clearly indicates the absence of correlation among the variables.
+
+**Modelling Approaches** <br>
+For this project, Random Forest and K Nearest Neighbors were used to predict water potability. These models take into account that the dependent variable be a factor with more than one level (Han et al., 2022). According to (Breiman, 2001) is a classification and regression model that uses the decision tree model approach to create a forest consisting of multiple decision trees. K Nearest Neighbors is also a classification machine learning model that classifies a data point by determining the predominant class among its k nearest neighbours in the feature space (Cover & Hart, 1967).
+
+**Data Split** <br>
+The caret package was utilised to partition the data according to the 80/20 rule, allocating 80% for training and 20% for testing. Set.seed is used to ensure the reproducibility of the model.
+
+```{r split, echo=TRUE, message=FALSE, warning=FALSE}
+set.seed(123)
+sample <- createDataPartition(water_quality$Potability, p = 0.8, list = FALSE)
+train_data <- water_quality[sample, ]
+test_data <- water_quality[-sample, ]
+```
+
+*Random Forest Model*
+```{r}
+train_control <- trainControl(method = "cv", number = 8)
+rf_model <- train(Potability ~ ., data = train_data, method = "rf", trControl = train_control) #The model
+rf_predict <- predict(rf_model, test_data) #Predicting the test data
+test_data$Potability_pred <- rf_predict
+```
+
+*KNN Model*
+```{r knn_model, message=FALSE, warning=FALSE}
+train_control <- trainControl(method = "cv", number = 10)
+knn_model <- train(Potability ~ ., data = train_data, method = "knn", trControl = train_control) #The model
+knn_predict <- predict(knn_model, test_data) #Predicting the test data
+test_data$Potability_pred <- knn_predict
+```
+
+## Results
+According to Han et al. (2022), when dealing with nominal dependent variables, evaluation metrics such as accuracy, precision, recall, and F1-Score should be utilised instead of the Root Mean Squared Error (RMSE). Given that the dependent variable `potability` is nominal, the following evaluation metrics will be employed.
+
+*Random Forest Model Confusion matrix* <br>
+The rows in the confusion matrix below represent actual labels and the column represent predicted label. So confusion matrix output below indicates that; <br>
+**True Positives (TP):** Correctly predicted 93 observation as potable water.<br>
+**True Negatives (TN):** Correctly predicted 345 observation as non-potable water.<br>
+**False Positives (FP):** Incorrectly predicted 162 observations as potable water while they are non-potable.<br>
+**False Negatives (FN):** Incorrectly predicted 54 observations as non-potable water while they are potable.<br>
+
+```{r rf_confusion, message=FALSE, warning=FALSE}
+rf_confusionMatrix <- table(test_data$Potability, test_data$Potability_pred)
+rf_confusionMatrix
+```
+
+*Random Forest Model Accuracy*
+According to (Witten et al., 2016), accuracy is the proportion of correctly predicted instances to the total number of instances.For this random forest model, the model is correct by 67%.
+
+```{r rf_accuracy, message=FALSE, warning=FALSE}
+rf_classification_accuracy <- sum(diag(rf_confusionMatrix)/sum(rf_confusionMatrix))
+rf_classification_accuracy
+```
+The code below extracts the elements of the confusion matrix
+```{r rf_matrix_elements, message=FALSE, warning=FALSE}
+#Elements of confusion matrix
+rf_TN <- rf_confusionMatrix [1,1]
+rf_FP <- rf_confusionMatrix [1,2]
+rf_FN <- rf_confusionMatrix [2,1]
+rf_TP <- rf_confusionMatrix [2,2]
+```
+
+*Random Forest Model Precision Evaluation* <br>
+Precision denotes the proportion of accurately predicted positive cases (Witten et al., 2016). From the output of the precision calculation, it shows that 68% of the portable predicted observations are indeed potable water.
+
+```{r rf_precision, message=FALSE, warning=FALSE}
+rf_precision <- rf_TP/(rf_TP+rf_FP)
+rf_precision
+```
+*Random Forest Model Recall Evaluation* <br>
+Recall, or sensitivity, measures the model's ability to accurately identify all positive instances present in the dataset (Witten et al., 2016). The model captures 84% of actual potable observations.
+```{r rf_potable, message=FALSE, warning=FALSE}
+rf_recall <- rf_TP/(rf_TP+rf_FN)
+rf_recall
+```
+*Random Forest Model F1 Score Evaluation* <br>
+The F1 score combines metrics that incorporate precision and recall, providing a comprehensive evaluation of model performance (Witten et al., 2016). The balance between Precision and Recall for `potablity` is excellent at 68%.
+
+```{r rf_f1, message=FALSE, warning=FALSE}
+rf_f1_score <- 2*(rf_precision * rf_recall)/(rf_precision + rf_recall)
+rf_f1_score
+```
+
+*KNN Confusion Matrix Model Confusion matrix* <br>
+The rows in the confusion matrix below represent actual labels and the column represent predicted label. So confusion matrix output below indicates that; <br>
+**True Positives (TP):** Correctly predicted 92 observation as potable water.<br>
+**True Negatives (TN):** Correctly predicted 461 observation as non-potable water.<br>
+**False Positives (FP):** Incorrectly predicted 291 observations as potable water while they are non-potable.<br>
+**False Negatives (FN):** Incorrectly predicted 136 observations as non-potable water while they are potable.<br>
+
+```{r}
+knn_confusionMatrix <- table(test_data$Potability, test_data$Potability_pred)
+knn_confusionMatrix
+```
+*KNN Model Accuracy*
+For this random forest model, the model is correct by 56%.
+```{r knn_accuracy, message=FALSE, warning=FALSE}
+knn_classification_accuracy <- sum(diag(knn_confusionMatrix)/sum(knn_confusionMatrix))
+knn_classification_accuracy
+```
+The code below extracts the elements of the confusion matrix
+```{r knn_matrix, message=FALSE, warning=FALSE}
+knn_TN <- knn_confusionMatrix [1,1]
+knn_FP <- knn_confusionMatrix [1,2]
+knn_FN <- knn_confusionMatrix [2,1]
+knn_TP <- knn_confusionMatrix [2,2]
+```
+
+*Random Forest Model Precision Evaluation* <br>
+From the output of the precision calculation, it shows that 61% of the portable predicted observations are indeed potable water.
+```{r}
+knn_precision <- knn_TP/(knn_TP+knn_FP)
+knn_precision
+```
+*KNN Model Recall Evaluation* <br>
+The model captures 77% of actual potable observations.
+```{r knn_recall, message=FALSE, warning=FALSE}
+knn_recall <- knn_TP/(knn_TP+knn_FN)
+knn_recall
+```
+*KNN Model F1 Score Evaluation* <br>
+The balance between Precision and Recall for `potablity` is excellent at 68%.
+```{r knn_f1_score, message=FALSE, warning=FALSE}
+knn_f1_score <- 2*(knn_precision * knn_recall)/(knn_precision + knn_recall)
+knn_f1_score
+```
+## Conclusion
+
+
+## References
+1. Breiman, L. (2001). Random Forests. Machine Learning, 45(1), 5–32. https://doi.org/10.1023/A:1010933404324
+2. Cover, T., & Hart, P. (1967). Nearest neighbor pattern classification. IEEE Transactions on Information Theory, 13(1), 21–27. https://doi.org/10.1109/TIT.1967.1053964
+3. Han, J., Pei, J., & Tong, H. (2022). Data mining: Concepts and techniques. Morgan kaufmann.
+4. Harper, F. M., & Konstan, J. A. (2015). The movielens datasets: History and context. Acm Transactions on Interactive Intelligent Systems (Tiis), 5(4), 1–19.
+5. Karunasingha, D. S. K. (2022). Root mean square error or mean absolute error? Use their ratio as well. Information Sciences, 585, 609–629. https://doi.org/10.1016/j.ins.2021.11.036
+6. Witten, I., Frank, E., Hall, M. A., & Pal, C. J. (2016). Data Mining: Practical Machine Learning Tools and Techniques.
+
+
+
